@@ -18,3 +18,7 @@ Get [SFML2.0](http://sfml-dev.org/)
 Link width -lsfml-network -lsfml-graphics -lsfml-window -lsfml-system
 
 By default the port used by the game are 53000 and 54000 (defined at the bottom of Client.h)
+
+# Screenshot
+
+![Screenshot in game](other/screenshot.png)
