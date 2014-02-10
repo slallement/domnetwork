@@ -378,7 +378,7 @@ void Client::run()
     sf::Clock clock;
     socket.setBlocking(false);
 
-    while (window.isOpen() && !exitCurrentGame)
+    while (window.isOpen() && !exitCurrentGame && connected)
     {
         const float dt = clock.restart().asSeconds();
         sf::Event event;
@@ -394,6 +394,7 @@ void Client::run()
         window.draw(gboard);
         window.display();
     }
+    socket.disconnect();
 }
 
 void Client::manageNetwork(){
@@ -431,6 +432,8 @@ void Client::networkActions(sf::Packet& packet, sf::Uint8 code)
             sf::Uint16 org;
             packet>>nidPlayer>>org;
             gboard.free(nidPlayer, org);
+        }else if(code == SYNCHRONIZE_GBOARD){
+            packet>>gboard;
         }
 }
 

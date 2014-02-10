@@ -72,7 +72,7 @@ inline void Game::manageEvents(sf::Event event)
             }else{
                 changeLinkState(posClickedMouse.x,posClickedMouse.y,
                             event.mouseButton.x,event.mouseButton.y);
-               }
+            }
         }
     }
 }

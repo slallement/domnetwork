@@ -67,26 +67,37 @@ void Server::launch()
         // then we send the gameboard
         sf::Packet packet;
         packet<<gboard;
-        int id = 1; // used to identify differents clients
+        unsigned int id = 0; // used to identify differents clients
         for (vector<sf::TcpSocket*>::iterator it = sockets.begin();
                     it != sockets.end(); ++it)
         {
             sf::TcpSocket& client = **it;
             if (client.send(packet) == sf::Socket::Done)
             {
-                cout<<"Carte envoye a : #"<<id<<endl;
+                cout<<"Carte envoye a : #"<<int(id+2)<<endl;
             }
             client.setBlocking(false);
-            id++;
+            ++id;
         }
 
         // Eventually the game starts
+        timeElapsed.restart();
         run();
     }else{
         // if we can't make the server
         // the game run without other players ...
         cout<<"Solo game"<<endl;
+        timeElapsed.restart();
         run();
+    }
+
+    // disconnect all clients when end
+    for (vector<sf::TcpSocket*>::iterator it = sockets.begin();
+            it != sockets.end();
+            ++it)
+    {
+        sf::TcpSocket& client = **it;
+        client.disconnect();
     }
 }
 
@@ -222,7 +233,7 @@ void Server::menuWaitingRoom()
             window.draw(info2);
 
             window.display();
-    }
+    } // end of waiting room
 }
 
 void Server::waitClient(){
@@ -276,7 +287,15 @@ void Server::waitClient(){
 
 }
 
-Server::~Server() {}
+Server::~Server()
+{
+    for (vector<sf::TcpSocket*>::iterator it = sockets.begin();
+            it != sockets.end();
+            ++it)
+    {
+        delete *it;
+    }
+}
 
 void Server::manageNetwork()
 /* loop for each client
@@ -286,28 +305,30 @@ and send back all information received from one client to others */
     if(!connected)
         return;
 
-    int i=0;
-
+    unsigned int i=0;
     for (vector<sf::TcpSocket*>::iterator it = sockets.begin();
-                    it != sockets.end(); ++it)
+            it != sockets.end();
+            ++it)
     {
         sf::TcpSocket& client = **it;
         if (selector.isReady(client)){
             sf::Packet packet;
+
+            // receive the data from a client
             if(client.receive(packet)==sf::Socket::Disconnected){
-                cout<<"Erreur de connexion !"<<endl;
+                cout<<"Deconnexion du client #"<<(i+2)<<" ! "<<endl;
                 it=sockets.erase(it);
                 break;
                 //connected = false;
             }else{
                 sf::Uint8 code;
                 if(packet>>code){
-                    // make the modif
+                    // make the modification
                     networkActions(packet,code);
 
                     // send the packet to others
                     for (unsigned int j=0;j<sockets.size();j++){
-                        if((int)j!=i){
+                        if(j!=i){
                             sockets[j]->send(packet);
                         }
                     }
@@ -318,6 +339,26 @@ and send back all information received from one client to others */
             }
         }
         i++;
+    }
+
+    // resynchronize the clients with de server each T_RESYNC sec
+    if(timeElapsed.getElapsedTime().asMilliseconds() > T_RESYNC )
+    {
+        resyncClients();
+        timeElapsed.restart();
+    }
+}
+
+void Server::resyncClients()
+{
+    sf::Packet packet;
+    packet<<(sf::Uint8)Client::SYNCHRONIZE_GBOARD<<gboard;
+    for (vector<sf::TcpSocket*>::iterator it = sockets.begin();
+            it != sockets.end();
+            ++it)
+    {
+        sf::TcpSocket& client = **it;
+        client.send(packet);
     }
 }
 
