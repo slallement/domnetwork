@@ -25,7 +25,7 @@ void Client::launch()
 
     gboard.init();
     cout<<"Attente d'un server"<<std::endl;
-    serverAdress = sf::IpAddress::None;
+    serverAddress = sf::IpAddress::None;
     sf::Thread thread(&Client::waitServer,&(*this));
     thread.launch();
 
@@ -69,20 +69,31 @@ void Client::menuServerList()
 {
     sf::Packet info_server;
 
+    const float FIRST_LINE_Y = 10.f;
+
+    sf::Text textManualIp;
+    textManualIp.setFont(*FontManager::getFont("ressources/Symtext.ttf"));
+    textManualIp.setCharacterSize(24);
+    textManualIp.setString("Manual ip  : ");
+    textManualIp.setPosition(10.f,FIRST_LINE_Y);
+
     sf::Text buttonManualIp;
     buttonManualIp.setFont(*FontManager::getFont("ressources/Symtext.ttf"));
     buttonManualIp.setCharacterSize(24);
-    buttonManualIp.setString("Manual ip     : ");
-    buttonManualIp.setPosition(10.f,10.f);
+    buttonManualIp.setString("Try connection");
+    buttonManualIp.setPosition(window.getSize().x
+                               -buttonManualIp.getGlobalBounds().width-20.f, FIRST_LINE_Y);
 
     sf::Text infoInput;
-    const float POSBAR_X = 300.f;
-    const float POSBAR_Y = 10.f;
+    const float POSBAR_X = textManualIp.getGlobalBounds().width
+                            + textManualIp.getGlobalBounds().left + 20.f;
+    const float POSBAR_Y = FIRST_LINE_Y;
     infoInput.setFont(*FontManager::getFont("ressources/Symtext.ttf"));
     infoInput.setCharacterSize(24);
     infoInput.setString("");
     infoInput.setPosition(POSBAR_X,POSBAR_Y);
     string textInput("");
+    sf::IpAddress directIp;
 
     sf::Text textBar;
     textBar.setFont(*FontManager::getFont("ressources/Symtext.ttf"));
@@ -90,18 +101,19 @@ void Client::menuServerList()
     textBar.setString("|");
     textBar.setPosition(POSBAR_X,POSBAR_Y);
 
+    const float SECOND_LINE_Y = FIRST_LINE_Y+30.f;
     sf::Text info;
     info.setFont(*FontManager::getFont("ressources/Symtext.ttf"));
     info.setCharacterSize(24);
-    info.setString("Ip adresses:");
-    info.setPosition(10.f,30.f);
+    info.setString("Ip adresses ---------------------------");
+    info.setPosition(10.f,SECOND_LINE_Y);
 
     sf::Text info2;
     info2.setFont(*FontManager::getFont("ressources/Symtext.ttf"));
     info2.setCharacterSize(18);
     info2.setString("<empty>");
-    info2.setPosition(10.f,30.f);
-    info2.move(0,40.f);
+    info2.setPosition(10.f,SECOND_LINE_Y);
+    info2.move(0,SECOND_LINE_Y);
 
     vector<string> listServText;
     vector<sf::Uint32> listServIp;
@@ -112,7 +124,7 @@ void Client::menuServerList()
     short unsigned int serv_port;
 
     sf::Clock clock;
-
+    window.setFramerateLimit(60);
     while(!connected && !exitCurrentGame && window.isOpen()){
         if(clock.getElapsedTime().asMilliseconds() > 1000){
             clock.restart();
@@ -123,7 +135,7 @@ void Client::menuServerList()
             if (event.type == sf::Event::Closed){
                 window.close();
                 connected = true;
-            }
+            }else
             if (event.type == sf::Event::KeyPressed)
             {
                 if (event.key.code == sf::Keyboard::Escape)
@@ -131,19 +143,28 @@ void Client::menuServerList()
                     exitCurrentGame = true;
                     connected = true;
                 }
-            }
+            }else
             if (event.type == sf::Event::MouseButtonPressed){
                 // if you click on an ip :
                 if (event.mouseButton.button == sf::Mouse::Left){
                     for(unsigned int i=0;i<listServButton.size();++i){
                         if (listServButton[i].getGlobalBounds().contains(
                             window.mapPixelToCoords(
-                            (sf::Mouse::getPosition(window)))) ){
-                            serverAdress = sf::IpAddress(listServIp[i]);
+                            (sf::Mouse::getPosition(window)))) )
+                        {
+                            serverAddress = sf::IpAddress(listServIp[i]);
                         }
                     }
+
+                    if(buttonManualIp.getGlobalBounds().contains(
+                            window.mapPixelToCoords(
+                            (sf::Mouse::getPosition(window))))
+                            && directIp != sf::IpAddress::None)
+                    {
+                        serverAddress = directIp;
+                    }
                 }
-            }
+            }else
             // manual ip entered :
             if (event.type == sf::Event::TextEntered)
             {
@@ -152,19 +173,21 @@ void Client::menuServerList()
                         if(textInput.size()>0){
                             textInput = textInput.substr(0, textInput.size()-1);
                         }
-                    }else{
+                    }else
+                    if(textInput.size() < 15){
                         if( ((event.text.unicode >= '0' &&
-                            event.text.unicode <= '9') ) &&
-                            textInput.size() < 15)
+                            event.text.unicode <= '9') ) )
                         {
                             textInput += event.text.unicode;
-                            if( ( (textInput.size()+1) % 4 == 0) && textInput.size() > 0
-                               && textInput.size() < 15){
+                            if( ( (textInput.size()+1) % 4 == 0)
+                                && textInput.size() > 0
+                                && textInput.size() < 11){
                                 textInput.push_back('.');
                             }
                         }else{
                             if( event.text.unicode == '.'
-                               && (textInput.size()+1) % 4 > 0){
+                                && (textInput.size()+1) % 4 > 0 )
+                            {
                                 unsigned int a = textInput.size()%4;
                                 string temp = textInput.substr(textInput.size()-a,a);
                                 textInput = textInput.substr(0, textInput.size()-a);
@@ -172,14 +195,17 @@ void Client::menuServerList()
                                     textInput.push_back('0');
                                 }
                                 textInput += temp;
-                                if(textInput.size() < 15)
+                                if(textInput.size() <= 11)
                                     textInput.push_back('.');
                             }
                         }
                     }
+
+                    infoInput.setString(textInput);
+                    if(textInput.size() >= 12)
+                        directIp = sf::IpAddress(textInput);
+                    textBar.setPosition(POSBAR_X+infoInput.getGlobalBounds().width,POSBAR_Y);
                 }
-                infoInput.setString(textInput);
-                textBar.setPosition(POSBAR_X+infoInput.getGlobalBounds().width,POSBAR_Y);
             }
         }
 
@@ -236,9 +262,18 @@ void Client::menuServerList()
                 listServButton[i].setColor(sf::Color(255,255,255,255));
             }
         }
+        if(buttonManualIp.getGlobalBounds().contains(window.mapPixelToCoords(
+                (sf::Mouse::getPosition(window))))
+                && directIp != sf::IpAddress::None)
+        {
+            buttonManualIp.setColor(sf::Color(200,200,255,200));
+        }else{
+            buttonManualIp.setColor(sf::Color(255,255,255,255));
+        }
 
         window.clear();
         window.draw(info);
+        window.draw(textManualIp);
         window.draw(buttonManualIp);
         window.draw(infoInput);
 
@@ -254,6 +289,7 @@ void Client::menuServerList()
         }
         window.display();
     }
+    window.setFramerateLimit(0);
 }
 
 void Client::menuWaitingRoom()
@@ -324,16 +360,20 @@ void Client::waitServer(){
         return;
 
     sf::IpAddress adress(adress_input);*/
-    while(serverAdress == sf::IpAddress::None){
-
+    while(serverAddress == sf::IpAddress::None){
+        sf::sleep(sf::milliseconds(1000));
     }
 
-    cout<<"Tentative de connexion a : "+serverAdress.toString()<<endl;
+    cout<<"Tentative de connexion a : "+serverAddress.toString()<<endl;
 
-    sf::Socket::Status status = socket.connect(serverAdress, PORT_GAME_A);
+    sf::Socket::Status status = socket.connect(serverAddress, PORT_GAME_A);
     if (status != sf::Socket::Done)
     {
         // error...
+        cout<<"Impossible de se connecter ..."<<endl;
+        serverAddress = sf::IpAddress::None;
+        waitServer();
+        return;
     }else{
         cout<<"connecte !"<<endl;
         connected = true;

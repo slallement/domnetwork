@@ -34,7 +34,7 @@ class Client
         // network variables:
         sf::TcpSocket socket;
         sf::UdpSocket socket_udp;
-        sf::IpAddress serverAdress;
+        sf::IpAddress serverAddress;
         bool connected;
         bool start;
         sf::Uint8 serverStatus;
