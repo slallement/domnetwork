@@ -22,9 +22,10 @@ class Menu
         Menu(sf::RenderWindow & window);
         virtual void run();
         virtual ~Menu();
+        void exit();
+    protected:
         virtual void action();
         virtual void draw();
-    protected:
         void centerTextOnxAxis(sf::Text &txt, float y);
         void loadBackground();
 
@@ -32,7 +33,6 @@ class Menu
         sf::Event event;
         std::vector<Button> option;
         bool end;
-        bool fullscreenMode;
         sf::Vector2f clic;
 
     private:

@@ -32,9 +32,11 @@ void Gameboard::randomize()
     for(int i=0;i<NB;i++){
         ok = true;
 
+        const float WIDTH = 800.f;
+        const float HEIGHT = 600.f;
         float r = (float)rand() / (float) RAND_MAX * 90.f+20.f;
-        float x = (float)rand() / (float) RAND_MAX * (800.f-2.f*(r+border)) + r + border;
-        float y = (float)rand() / (float) RAND_MAX * (600.f-2.f*(r+border)) + r + border;
+        float x = (float)rand() / (float) RAND_MAX * (WIDTH-2.f*(r+border)) + r + border;
+        float y = (float)rand() / (float) RAND_MAX * (HEIGHT-2.f*(r+border)) + r + border;
         int c = rand() % (maxCapacity-minCapacity-(int)(r/2.5f))+minCapacity;
         for(unsigned int j=0;j<cells.size();j++){
             float dx = cells[j].pos.x-x;
@@ -87,6 +89,10 @@ Gameboard::~Gameboard()
 
 void Gameboard::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    sf::Vector2f ratio(Utils::dot(
+                                  target.getDefaultView().getSize(),
+                                  sf::Vector2f(1.f/800.f,1.f/600.f)) );
+    states.transform.scale(ratio);
     //target.draw(m_sprite, states);;
     for(std::deque<Link>::const_iterator it=links.begin();it!=links.end();++it){
        sf::Vertex line[] =
@@ -96,8 +102,8 @@ void Gameboard::draw(sf::RenderTarget& target, sf::RenderStates states) const
         };
         line[0].color = (*players)[it->org->getOwner()-1].getColor();
         //line[1].color = (*players)[it->org.getOwner()].getColor();
-        target.draw(line, 2, sf::Lines);
-        target.draw(*it);
+        target.draw(line, 2, sf::Lines,states);
+        target.draw(*it,states);
     }
 
     for(unsigned int i=0;i<cells.size();++i){
@@ -114,7 +120,7 @@ void Gameboard::draw(sf::RenderTarget& target, sf::RenderStates states) const
         cell.setRotation(elapsed.getElapsedTime().asSeconds()*2.f*PI*RAD_TO_DEG
                          *freqRot[i]);
 
-        target.draw(cell);
+        target.draw(cell, states);
 
         sf::Text text;
         text.setColor(sf::Color::Black);
@@ -125,7 +131,7 @@ void Gameboard::draw(sf::RenderTarget& target, sf::RenderStates states) const
                        text.getGlobalBounds().height/2.f);
         text.setPosition(cells[i].pos);
 
-        target.draw(text);//,text.getTransform());
+        target.draw(text,states);//,text.getTransform());
     }
 }
 

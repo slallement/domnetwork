@@ -64,6 +64,11 @@ namespace Utils{
         return (point.x-p_circle.x)*(point.x-p_circle.x)+
             (point.y-p_circle.y)*(point.y-p_circle.y) < radius*radius;
     }
+
+    inline sf::Vector2f dot(sf::Vector2f a, sf::Vector2f b)
+    {
+        return sf::Vector2f(a.x*b.x,a.y*b.y);
+    }
 }
 
 

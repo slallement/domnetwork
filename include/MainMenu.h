@@ -1,6 +1,7 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 
+#include "Menu.h"
 #include "Utils.h"
 #include <vector>
 #include <string>
@@ -9,36 +10,30 @@
 #include <SFML/Graphics.hpp>
 
 
-class MainMenu;
+/*class MainMenu;
 struct Button
 {
     sf::Text txt;
     void (MainMenu::*f)();
 
-};
+};*/
 
-class MainMenu
+class MainMenu : public Menu
 {
     public:
         MainMenu(sf::RenderWindow & window);
-        virtual void run();
         virtual ~MainMenu();
 
         void server();
         void client();
         void mode();
-        void exit();
+        //void exit();
     protected:
         void centerTextOnxAxis(sf::Text &txt, float y);
         void recomputePos();
         void loadBackground();
 
-        sf::RenderWindow & window;
-        sf::Event event;
-        std::vector<Button> option;
-        bool end;
         bool fullscreenMode;
-        sf::Vector2f clic;
 
     private:
 };

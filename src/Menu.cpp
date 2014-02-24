@@ -3,13 +3,8 @@
 #include <iostream>
 
 Menu::Menu(sf::RenderWindow & win):
-    window(win), end(false), fullscreenMode(false)
+    window(win), end(false)
 {
-    sf::ContextSettings settings;
-    settings.antialiasingLevel = 8;
-
-    window.create(sf::VideoMode(800,600), "Dom Network", sf::Style::Default, settings);
-    window.setFramerateLimit(60);
 }
 
 Menu::~Menu()
@@ -20,6 +15,11 @@ Menu::~Menu()
 void Menu::centerTextOnxAxis(sf::Text &txt, float y)
 {
     txt.setPosition((window.getSize().x-txt.getGlobalBounds().width)/2.f,y);
+}
+
+void Menu::exit()
+{
+    end = true;
 }
 
 void Menu::action()

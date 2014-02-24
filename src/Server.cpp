@@ -108,7 +108,7 @@ void Server::menuWaitingRoom()
     sf::Packet info_server;
         info_server<<serverStatus;//<< sf::IpAddress::getLocalAddress().toInteger();
 
-    sf::RectangleShape rect(sf::Vector2f(800,600));
+    sf::RectangleShape rect(window.getDefaultView().getSize());
         rect.setFillColor(sf::Color(0,0,0,180));
 
     sf::Text info;

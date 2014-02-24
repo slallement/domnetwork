@@ -5,7 +5,7 @@
 #include "../include/Client.h"
 
 MainMenu::MainMenu(sf::RenderWindow & win):
-    window(win), end(false), fullscreenMode(false)
+    Menu(win), fullscreenMode(false)
 {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -20,20 +20,20 @@ MainMenu::MainMenu(sf::RenderWindow & win):
     sf::Text t = sf::Text("Server",*FontManager::getFont("ressources/Symtext.ttf"),32);
     option.resize(4);
     option[0].txt = t;
-    option[0].f = &MainMenu::server;
+    option[0].f = static_cast<void(Menu::*)()>(&MainMenu::server);
 
     t.setString("Client");
     option[1].txt = t;
-    option[1].f = &MainMenu::client;
+    option[1].f = static_cast<void(Menu::*)()>(&MainMenu::client);
 
     t.setString("Mode");
     option[2].txt = t;
     option[2].txt.setString("Mode : windowed");
-    option[2].f = &MainMenu::mode;
+    option[2].f = static_cast<void(Menu::*)()>(&MainMenu::mode);
 
     t.setString("Exit");
     option[3].txt = t;
-    option[3].f = &MainMenu::exit;
+    option[3].f = &Menu::exit;
 
     recomputePos();
 }
@@ -76,14 +76,16 @@ void MainMenu::mode()
 
     //window = sf::RenderWindow(window(sf::VideoMode(1600, 900), "Dodger King",sf::Style::Fullscreen);
     //sf::VideoMode videomode = sf::VideoMode(1680, 1050);
-    sf::VideoMode videomode = sf::VideoMode(1600, 900);
+
     if(!fullscreenMode){
+        sf::VideoMode videomode = sf::VideoMode(1600, 900);
         if(videomode.isValid()){
             window.create(videomode, "Dom Network",sf::Style::Fullscreen);
             option[2].txt.setString("Mode : fullscreen");
         }
         fullscreenMode = true;
     }else{
+        sf::VideoMode videomode = sf::VideoMode(800, 600);
         window.create(videomode, "Dom network");
         option[2].txt.setString("Mode : windowed");
         fullscreenMode = false;
@@ -91,65 +93,4 @@ void MainMenu::mode()
     recomputePos();
 }
 
-void MainMenu::exit()
-{
-    end = true;
-}
 
-void MainMenu::run()
-{
-    sf::Clock elapsed;
-    sf::Clock clock;float dt;
-    while (window.isOpen() && !end)
-    {
-        dt = clock.restart().asSeconds();
-
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-            if (event.type == sf::Event::KeyPressed){
-                if (event.key.code == sf::Keyboard::Escape){
-                    exit();
-                }
-            }
-
-            if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left)
-                {
-                    clic = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-                }
-            }else if(event.type == sf::Event::MouseButtonReleased) {
-                for(unsigned int i=0; i<option.size();++i){
-                    if(option[i].txt.getGlobalBounds().contains(
-                            window.mapPixelToCoords(
-                            (sf::Mouse::getPosition(window))) )
-                    && option[i].txt.getGlobalBounds().contains(
-                           clic) )
-                    {
-                        if(option[i].f != NULL){
-                            (this->*option[i].f)();
-                        }
-                    }
-                }
-            }
-
-        }
-        window.clear();
-
-
-        for(unsigned int i=0; i<option.size();++i){
-            if(option[i].txt.getGlobalBounds().contains(
-                        window.mapPixelToCoords(
-                        (sf::Mouse::getPosition(window)))) )
-            {
-                option[i].txt.setColor(sf::Color(200,200,255,200));
-            }else{
-                option[i].txt.setColor(sf::Color(255,255,255,255));
-            }
-            window.draw(option[i].txt);
-        }
-
-        window.display();
-    }
-}
