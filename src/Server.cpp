@@ -133,6 +133,10 @@ void Server::menuWaitingRoom()
         buttonRemove.setString("Remove player");
         buttonRemove.setPosition(500.f,40.f);
 
+    /*sf::Text buttonExit = info;
+        buttonExit.setString("Exit");
+        buttonExit.setPosition(500.f,60.f);*/
+
     sf::Text button_t;
         button_t.setFont(*FontManager::getFont("ressources/Symtext.ttf"));
         button_t.setCharacterSize(24);

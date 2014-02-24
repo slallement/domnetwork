@@ -37,4 +37,6 @@ void Cell::setOwner(int ownerId)
     idOwner = ownerId;
 }
 
-int Cell::getOwner() const{ return idOwner; }
+int Cell::getOwner() const {
+    return idOwner;
+}

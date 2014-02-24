@@ -1,5 +1,5 @@
-#ifndef MAINMENU_H
-#define MAINMENU_H
+#ifndef MENU_H
+#define MENU_H
 
 #include "Utils.h"
 #include <vector>
@@ -9,28 +9,23 @@
 #include <SFML/Graphics.hpp>
 
 
-class MainMenu;
+class Menu;
 struct Button
 {
     sf::Text txt;
-    void (MainMenu::*f)();
-
+    void (Menu::*f)();
 };
 
-class MainMenu
+class Menu
 {
     public:
-        MainMenu(sf::RenderWindow & window);
+        Menu(sf::RenderWindow & window);
         virtual void run();
-        virtual ~MainMenu();
-
-        void server();
-        void client();
-        void mode();
-        void exit();
+        virtual ~Menu();
+        virtual void action();
+        virtual void draw();
     protected:
         void centerTextOnxAxis(sf::Text &txt, float y);
-        void recomputePos();
         void loadBackground();
 
         sf::RenderWindow & window;
@@ -43,4 +38,4 @@ class MainMenu
     private:
 };
 
-#endif // MAINMENU_H
+#endif // MENU_H
