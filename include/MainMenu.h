@@ -29,11 +29,13 @@ class MainMenu : public Menu
         void mode();
         //void exit();
     protected:
+        virtual void draw();
         void centerTextOnxAxis(sf::Text &txt, float y);
         void recomputePos();
         void loadBackground();
 
         bool fullscreenMode;
+        sf::Text title;
 
     private:
 };

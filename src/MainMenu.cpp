@@ -17,6 +17,10 @@ MainMenu::MainMenu(sf::RenderWindow & win):
         window.setIcon(256,256,icon.getPixelsPtr());*/
     window.setFramerateLimit(60);
 
+    title = sf::Text("DomNetwork",*FontManager::getFont("ressources/Symtext.ttf"),46);
+    title.setColor(sf::Color(100,100,255));
+    centerTextOnxAxis(title, 50.f);
+
     sf::Text t = sf::Text("Server",*FontManager::getFont("ressources/Symtext.ttf"),32);
     option.resize(4);
     option[0].txt = t;
@@ -46,7 +50,7 @@ MainMenu::~MainMenu()
 void MainMenu::recomputePos()
 {
     for(unsigned int i=0;i<4; ++i){
-        centerTextOnxAxis(option[i].txt,100.f+i*100.f);
+        centerTextOnxAxis(option[i].txt,150.f+i*100.f);
     }
 }
 
@@ -65,6 +69,11 @@ void MainMenu::client()
 {
     Client s(window);
     s.launch();
+}
+
+void MainMenu::draw()
+{
+    window.draw(title);
 }
 
 void MainMenu::mode()
