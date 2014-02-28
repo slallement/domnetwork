@@ -3,6 +3,9 @@
 
 #include <SFML/Network.hpp>
 #include "Game.h"
+//#include "Menu.h"
+#include "ClientMenuServerList.h"
+
 
 class Client
 {
