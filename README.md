@@ -1,7 +1,7 @@
 domnetwork
 ==========
 
-A simple strategy game playable over a network.
+A simple strategy game playable over a network, using TCP and UDP protocol.
 
 You own an cell with a certain amount of units and you can make link between others cells to spread your color.
 
